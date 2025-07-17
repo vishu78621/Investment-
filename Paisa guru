@@ -1,0 +1,95 @@
+investment-app/
+│
+├── app.py               # Flask backend
+├── templates/
+│   └── index.html       # Frontend HTML
+├── static/
+│   └── style.css        # Styling
+└── requirements.txt     # Install dependencies
+from flask import Flask, render_template, request
+from datetime import datetime
+
+app = Flask(__name__)
+
+# Dummy in-memory DB
+users = []
+
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    message = ''
+    if request.method == 'POST':
+        name = request.form['name']
+        mobile = request.form['mobile']
+        start_date = datetime.now()
+        amount = 500
+        interest_per_day = (amount * 0.05) / 30  # 5% monthly approx
+
+        users.append({
+            'name': name,
+            'mobile': mobile,
+            'amount': amount,
+            'date': start_date,
+            'interest': interest_per_day
+        })
+
+        message = f"{name}, आपका ₹{amount} सफलतापूर्वक जमा हो गया है। प्रतिदिन ब्याज ₹{round(interest_per_day, 2)} जुड़ता रहेगा।"
+
+    return render_template('index.html', users=users, message=message)
+
+if __name__ == '__main__':
+    app.run(debug=True)
+    <!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <title>निवेश ऐप</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>₹500 मासिक निवेश योजना</h1>
+        <form method="POST">
+            <label>नाम:</label><br>
+            <input type="text" name="name" required><br>
+            <label>मोबाइल नंबर:</label><br>
+            <input type="text" name="mobile" required><br>
+            <button type="submit">जमा करें</button>
+        </form>
+        {% if message %}
+        <div class="msg">{{ message }}</div>
+        {% endif %}
+
+        <h3>यूज़र्स की लिस्ट:</h3>
+        <ul>
+            {% for user in users %}
+            <li>{{ user.name }} - ₹{{ user.amount }} - ब्याज/दिन: ₹{{ user.interest|round(2) }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+</body>
+</html>
+body {
+    font-family: 'Arial', sans-serif;
+    background: #f5f5f5;
+    padding: 20px;
+}
+.container {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 500px;
+    margin: auto;
+}
+input, button {
+    padding: 10px;
+    width: 100%;
+    margin: 10px 0;
+}
+.msg {
+    background: #d4edda;
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 5px;
+    color: green;
+}
+flask
